@@ -1,6 +1,7 @@
 // our tool should be able to take a searchtring followed by an example-filename.txt
 
 use std::env; // like an import statement
+use std::fs; // bring in the fs to read files
 
 fn main() {
     // we capture the arguments by using the std(short for standard) library particularly the env module
@@ -15,4 +16,10 @@ fn main() {
 
     println!("Searching for {}", query);
     println!("In file {}", filename);
+
+    // get the contents of the file
+    let contents = fs::read_to_string(filename) // read_to_string returns a Result type
+        .expect("Something went wrong reading the file"); // and that's why we can add the .expect on it
+
+    println!("With text:\n{}", contents);
 }
