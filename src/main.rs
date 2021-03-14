@@ -1,7 +1,8 @@
 // our tool should be able to take a searchtring followed by an example-filename.txt
 
 use std::env; // like an import statement
-use std::fs; // bring in the fs to read files
+use std::process; // bringing in to to do exit codes
+use minigrep::Config;
 
 fn main() {
     // we capture the arguments by using the std(short for standard) library particularly the env module
@@ -11,28 +12,24 @@ fn main() {
     let args: Vec<String> = env::args().collect();
 
     // then we index into the vector and grab those strings
-    let config = parse_config(&args);
+    let config = Config::new(&args).unwrap_or_else( |err|{
+        println!("Problem parsing arguments: {}", err);
+        process::exit(1);
+    });
 
     println!("Searching for {}", config.query);
     println!("In file {}", config.filename);
 
-    // get the contents of the file
-    let contents = fs::read_to_string(config.filename) // read_to_string returns a Result type
-        .expect("Something went wrong reading the file"); // and that's why we can add the .expect on it
-
-    println!("With text:\n{}", contents);
-}
-
-// making a Struct here to convey better meaning to the way parse_config works
-struct Config {
-    query: String,
-    filename: String,
+    if let Err(e) = minigrep::run(config) {
+        println!("Application error: {}", e);
+        process::exit(1);
+    }
 }
 
 // Moving logic for parsing the args here
-fn parse_config(args: &[String]) -> Config {
-    let query = args[1].clone(); // this first one will be the pattern we search for
-    let filename = args[2].clone(); // this one will be the source file we're searching into
-
-    Config { query, filename }
-}
+// fn parse_config(args: &[String]) -> Config {
+//     let query = args[1].clone(); // this first one will be the pattern we search for
+//     let filename = args[2].clone(); // this one will be the source file we're searching into
+//
+//     Config { query, filename }
+// }
